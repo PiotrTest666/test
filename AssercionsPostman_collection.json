@@ -1,44 +1,25 @@
 {
 	"info": {
-		"_postman_id": "a4831878-a92d-4a1d-8eef-e56e2934386a",
-		"name": "Assercions",
+		"_postman_id": "a362c7ec-a2a4-4a2d-8503-47e1a8310cb4",
+		"name": "Passing Postman collection",
+		"description": "Makes four requests to HTTPBin (httpbin.org) and tests Newman",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "New Request",
+			"name": "GET with URL Params",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"My test1\", function () {\r",
-							"    let a={\r",
-							"        \"name\": \"Peter\"\r",
-							"    };\r",
-							"   let b={\r",
-							"       \"name\":\"Peter\"\r",
-							"    };\r",
-							"\r",
-							"    pm.expect(a).to.not.eql(b, '1');\r",
-							"    pm.expect(a).to.equal(b, '2'); //czy to ten sam obiekt? NIE\r",
-							"    pm.expect(a).to.eql(a, '3');\r",
-							"});\r",
-							"\r",
-							"pm.test(\"My test2\", function () {\r",
-							"    pm.expect(true).to.be.true;\r",
-							"    pm.expect(null).to.be.null;\r",
-							"    pm.expect(undefined).to.be.undefined;\r",
-							"});\r",
-							"\r",
-							"pm.test(\"My test3\", function () {\r",
-							"    pm.expect([1,2,3]).to.include(2);\r",
-							"    pm.expect(2).to.be.oneOf([0,1,2]);\r",
-							"    pm.expect('Piotr Roz').to.match(/^Pio/); //RegEx\r",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(2000);",
+							"});",
+							"",
+							"pm.test(\"Response contains params\", function () {",
+							"    let data = pm.response.json();",
+							"    pm.expect(data.args.lol).to.eql(\"true\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -49,82 +30,172 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://example.com/",
-					"protocol": "http",
+					"raw": "{{url}}/get?lol=true",
 					"host": [
-						"example",
-						"com"
+						"{{url}}"
 					],
 					"path": [
-						""
+						"get"
+					],
+					"query": [
+						{
+							"key": "lol",
+							"value": "true"
+						}
+					]
+				},
+				"description": "Simple GET request with URL Parameters"
+			},
+			"response": []
+		},
+		{
+			"name": "POST with JSON body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check POST param in response\", function () {",
+							"    let data = pm.response.json();",
+							"    pm.expect(data.json.something).to.eql(\"cool\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"something\": \"cool\"\n}"
+				},
+				"url": {
+					"raw": "http://httpbin.org/post",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "DELETE request",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
+						"type": "text/javascript",
 						"exec": [
-							"const jsonData = pm.response.json();\r",
-							"\r",
-							"let commentsStatus = jsonData.prefs.comments.status;\r",
-							"pm.test(\"comments should be disabled\", function(){\r",
-							"    pm.expect(commentsStatus).to.eql(\"disabled\");\r",
-							"});\r",
-							"\r",
-							"let boardStatus = jsonData.limits['54bba24af6196bd5f824e563'].boards.totalPerMember.status;\r",
-							"pm.test(\"board status should be OK 1\", function(){\r",
-							"    pm.expect(boardStatus).to.eql(\"ok\");\r",
-							"});\r",
-							"\r",
-							"let boardStatus1;\r",
-							"for(let key in jsonData.limits){\r",
-							"    // console.log(key, jsonData.limits[key]);\r",
-							"    if(jsonData.limits[key].hasOwnProperty('boards')){\r",
-							"        boardStatus1 = jsonData.limits[key].boards.totalPerMember.status;\r",
-							"    }\r",
-							"};\r",
-							"pm.test(\"board status should be OK 2\", function(){\r",
-							"    pm.expect(boardStatus1).to.eql(\"ok\");\r",
-							"});\r",
-							"\r",
-							"console.log(pm.response.headers.get('Sozu-Id'));\r",
-							"pm.test(\"headers is ok\", function(){\r",
-							"    pm.expect(pm.response.headers.get('Sozu-Id')).to.eql('HIT');\r",
-							"});\r",
-							"\r",
-							"pm.test(\"cookie has sessionId\", function(){\r",
-							"pm.expect(pm.cookies.has('sessionId')).to.be.true;});\r",
-							"\r",
-							"pm.test(\"cookie sessionId has proper value\", function(){\r",
-							"pm.expect(pm.cookies.get('sessionId')).to.eql('ad3se3ss8sg7sg3');});"
-						],
-						"type": "text/javascript"
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
 					}
 				}
 			],
 			"request": {
-				"method": "GET",
+				"method": "DELETE",
 				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
 				"url": {
-					"raw": "http://www.mocky.io/v2/5ab34d8c2f00006600ca3652",
+					"raw": "http://httpbin.org/delete",
 					"protocol": "http",
 					"host": [
-						"www",
-						"mocky",
-						"io"
+						"httpbin",
+						"org"
 					],
 					"path": [
-						"v2",
-						"5ab34d8c2f00006600ca3652"
+						"delete"
 					]
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "PUT with form data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Test form data\", function () {",
+							"    let data = pm.response.json();",
+							"    pm.expect(data.form.quotient).to.eql(\"223\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "quotient",
+							"value": "223",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://httpbin.org/put",
+					"protocol": "http",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"put"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }
